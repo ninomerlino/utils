@@ -1,6 +1,16 @@
+//! SHA-512 hasher.
+//!
+//! Shape:
+//! - block size: 128 bytes
+//! - schedule: 80 `u64` words
+//! - digest: 64 bytes
+//!
+//! This is the standard 64-bit-word member of the SHA-2 family.
+
 use super::Digest;
 use super::HashStream;
 
+/// SHA-512 round constants, one per compression round.
 pub const K: [u64; 80] = [
     0x428a2f98d728ae22,
     0x7137449123ef65cd,
@@ -84,6 +94,7 @@ pub const K: [u64; 80] = [
     0x6c44198c4a475817,
 ];
 
+/// Stateful SHA-512 compressor.
 pub struct SHA512 {
     pub(super) h0: u64,
     pub(super) h1: u64,

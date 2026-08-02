@@ -1,8 +1,19 @@
+//! SHA-512/224 hasher.
+//!
+//! Shape:
+//! - block size: 128 bytes
+//! - schedule: 80 `u64` words
+//! - digest: 28 bytes
+//!
+//! SHA-512/224 reuses the SHA-512 compression function with distinct initial
+//! constants and returns the first 224 digest bits.
+
 use super::SHA512;
 
 use super::Digest;
 use super::HashStream;
 
+/// Stateful SHA-512/224 compressor backed by the SHA-512 state layout.
 pub struct SHA512224(SHA512);
 
 impl Default for SHA512224 {

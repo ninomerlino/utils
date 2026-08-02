@@ -1,5 +1,19 @@
+//! SHA-1 hasher.
+//!
+//! Shape:
+//! - block size: 64 bytes
+//! - schedule: 80 `u32` words
+//! - digest: 20 bytes
+//!
+//! SHA-1 is kept for compatibility with existing data formats. It is
+//! cryptographically broken and should not be used for new designs.
+
 use crate::sha::{Digest, HashStream, sha0::SHA0};
 
+/// Stateful SHA-1 compressor.
+///
+/// It reuses SHA-0 state storage and replaces the message expansion step with
+/// SHA-1's rotated schedule.
 #[derive(Debug, Clone, Copy)]
 pub struct SHA1(pub SHA0);
 

@@ -1,5 +1,19 @@
+//! SHA-0 hasher.
+//!
+//! Shape:
+//! - block size: 64 bytes
+//! - schedule: 80 `u32` words
+//! - digest: 20 bytes
+//!
+//! SHA-0 is historical and obsolete. Keep it for compatibility or tests, not
+//! for security-sensitive use.
+
 use crate::sha::{Digest, HashStream};
 
+/// Stateful SHA-0 compressor.
+///
+/// Create it with [`Default`], then call [`HashStream::hash_stream`] for a
+/// one-shot hash.
 #[derive(Debug, Clone, Copy)]
 pub struct SHA0 {
     pub(super) h0: u32,
