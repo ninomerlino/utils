@@ -2,11 +2,11 @@ use crate::sha::{Digest, HashStream};
 
 #[derive(Debug, Clone, Copy)]
 pub struct SHA0 {
-    pub h0: u32,
-    pub h1: u32,
-    pub h2: u32,
-    pub h3: u32,
-    pub h4: u32,
+    pub(super) h0: u32,
+    pub(super) h1: u32,
+    pub(super) h2: u32,
+    pub(super) h3: u32,
+    pub(super) h4: u32,
 }
 
 impl Default for SHA0 {

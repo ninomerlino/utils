@@ -1,5 +1,10 @@
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
 use std::{fmt::Display, ops::Deref};
 
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Digest<const T: usize>(pub [u8; T]);
 
 fn to_hex(bytes: &[u8]) -> String {

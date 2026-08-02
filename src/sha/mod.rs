@@ -1,12 +1,16 @@
 mod digest;
 mod sha0;
 mod sha1;
-mod sha2;
+mod sha224;
+mod sha256;
+mod sha512;
 
 pub use digest::Digest;
 pub use sha0::SHA0;
 pub use sha1::SHA1;
-pub use sha2::{SHA224, SHA256};
+pub use sha224::SHA224;
+pub use sha256::SHA256;
+pub use sha512::SHA512;
 
 use std::io::{self, ErrorKind, Read};
 
