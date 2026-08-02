@@ -1,49 +1,36 @@
 name: Test & Tag MAIN
-
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-
 env:
   CARGO_TERM_COLOR: always
-
 permissions:
   contents: write
-
 jobs:
   test-and-tag:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
       - uses: dtolnay/rust-toolchain@stable
-
       - uses: Swatinem/rust-cache@v2
-
       - name: Run tests
         run: cargo test --all --verbose
-
       - name: Read version
         id: version
         run: |
           VERSION=$(cargo metadata --no-deps --format-version=1 | jq -r '.packages[0].version')
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-
       - name: Create tag
         run: |
           TAG="v${{ steps.version.outputs.version }}"
-
           git fetch --tags
-
           if git rev-parse "$TAG" >/dev/null 2>&1; then
             echo "Tag $TAG already exists."
             exit 1
           fi
-
           git tag "$TAG"
           git push origin "$TAG"
