@@ -10,7 +10,7 @@ static TEST_FILES: [&'static str; 1] =
 fn verify_sha_0() {
     for test_string in TEST_FILES {
         let x = Cursor::new(test_string.as_bytes());
-        let string_digest = SHA0::default().hash_stream(x).to_string();
+        let string_digest = SHA0::default().hash_stream(x).unwrap().to_string();
         assert_eq!(string_digest, string_digest);
     }
 }
@@ -19,7 +19,7 @@ fn verify_sha_0() {
 fn verify_sha_1() {
     for test_string in TEST_FILES {
         let x = Cursor::new(test_string.as_bytes());
-        let string_digest = SHA1::default().hash_stream(x).to_string();
+        let string_digest = SHA1::default().hash_stream(x).unwrap().to_string();
         let mut hasher = sha::sha1::Sha1::default();
         let out = hasher.digest(test_string.as_bytes()).to_hex();
         assert_eq!(string_digest, out);
@@ -30,7 +30,7 @@ fn verify_sha_1() {
 fn verify_sha_256() {
     for test_string in TEST_FILES {
         let x = Cursor::new(test_string.as_bytes());
-        let string_digest = SHA256::default().hash_stream(x).to_string();
+        let string_digest = SHA256::default().hash_stream(x).unwrap().to_string();
         let mut hasher = sha::sha256::Sha256::default();
         let out = hasher.digest(test_string.as_bytes()).to_hex();
         assert_eq!(string_digest, out);
@@ -41,7 +41,7 @@ fn verify_sha_256() {
 fn verify_sha_224() {
     for test_string in TEST_FILES {
         let x = Cursor::new(test_string.as_bytes());
-        let string_digest = SHA224::default().hash_stream(x).to_string();
+        let string_digest = SHA224::default().hash_stream(x).unwrap().to_string();
         let mut hasher = sha::sha224::Sha224::default();
         let out = hasher.digest(test_string.as_bytes()).to_hex();
         assert_eq!(string_digest, out);

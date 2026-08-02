@@ -37,12 +37,12 @@ impl Default for SHA256 {
     }
 }
 
-impl HashStream<64, 64, 32> for SHA256 {
+impl HashStream<64, 64, 32, 8, u32> for SHA256 {
     fn build_words(buffer: &[u8]) -> [u32; 64] {
         let mut words = [0u32; 64];
-        for i in 0..16 {
+        for (i, word) in words.iter_mut().enumerate().take(16) {
             let ii = i * 4;
-            words[i] =
+            *word =
                 u32::from_be_bytes([buffer[ii], buffer[ii + 1], buffer[ii + 2], buffer[ii + 3]]);
         }
 
@@ -123,7 +123,7 @@ impl From<SHA256> for Digest<32> {
 
 pub struct SHA224(SHA256);
 
-impl HashStream<64, 64, 28> for SHA224 {
+impl HashStream<64, 64, 28, 8, u32> for SHA224 {
     fn build_words(buffer: &[u8]) -> [u32; 64] {
         SHA256::build_words(buffer)
     }

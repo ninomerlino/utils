@@ -16,16 +16,16 @@ impl Default for SHA1 {
     }
 }
 
-impl HashStream<64, 80, 20> for SHA1 {
+impl HashStream<64, 80, 20, 8, u32> for SHA1 {
     fn hash_block(&mut self, words: [u32; 80]) {
         self.0.hash_block(words);
     }
 
     fn build_words(buffer: &[u8]) -> [u32; 80] {
         let mut words = [0u32; 80];
-        for i in 0..16 {
+        for (i, word) in words.iter_mut().enumerate().take(16) {
             let ii = i * 4;
-            words[i] =
+            *word =
                 u32::from_be_bytes([buffer[ii], buffer[ii + 1], buffer[ii + 2], buffer[ii + 3]]);
         }
         for i in 16..80 {

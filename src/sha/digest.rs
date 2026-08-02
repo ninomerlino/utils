@@ -1,5 +1,3 @@
-
-
 use std::{fmt::Display, ops::Deref};
 
 pub struct Digest<const T: usize>(pub [u8; T]);
@@ -21,4 +19,3 @@ impl<const T: usize> Deref for Digest<T> {
         &self.0
     }
 }
-

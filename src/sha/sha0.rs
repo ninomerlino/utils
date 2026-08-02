@@ -1,5 +1,4 @@
 use crate::sha::{Digest, HashStream};
-use std::fmt::Display;
 
 #[derive(Debug, Clone, Copy)]
 pub struct SHA0 {
@@ -22,12 +21,12 @@ impl Default for SHA0 {
     }
 }
 
-impl HashStream<64, 80, 20> for SHA0 {
+impl HashStream<64, 80, 20, 8, u32> for SHA0 {
     fn build_words(buffer: &[u8]) -> [u32; 80] {
         let mut words = [0u32; 80];
-        for i in 0..16 {
+        for (i, word) in words.iter_mut().enumerate().take(16) {
             let ii = i * 4;
-            words[i] =
+            *word =
                 u32::from_be_bytes([buffer[ii], buffer[ii + 1], buffer[ii + 2], buffer[ii + 3]]);
         }
         for i in 16..80 {
@@ -44,7 +43,7 @@ impl HashStream<64, 80, 20> for SHA0 {
         let mut e = self.h4;
 
         //YAY! first 80 words are ready!
-        for t in 0..80 {
+        for (t, word) in words.iter().enumerate() {
             let f: u32;
             let k: u32;
 
@@ -73,7 +72,7 @@ impl HashStream<64, 80, 20> for SHA0 {
                 .wrapping_add(f)
                 .wrapping_add(e)
                 .wrapping_add(k)
-                .wrapping_add(words[t]);
+                .wrapping_add(*word);
 
             e = d;
             d = c;
