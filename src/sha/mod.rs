@@ -3,14 +3,20 @@ mod sha0;
 mod sha1;
 mod sha224;
 mod sha256;
+mod sha384;
 mod sha512;
+mod sha512224;
+mod sha512256;
 
 pub use digest::Digest;
 pub use sha0::SHA0;
 pub use sha1::SHA1;
 pub use sha224::SHA224;
 pub use sha256::SHA256;
+pub use sha384::SHA384;
 pub use sha512::SHA512;
+pub use sha512224::SHA512224 as SHA512_224;
+pub use sha512256::SHA512256 as SHA512_256;
 
 use std::io::{self, ErrorKind, Read};
 
