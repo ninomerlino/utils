@@ -1,8 +1,19 @@
+//! SHA-384 hasher.
+//!
+//! Shape:
+//! - block size: 128 bytes
+//! - schedule: 80 `u64` words
+//! - digest: 48 bytes
+//!
+//! SHA-384 reuses the SHA-512 compression function with SHA-384 initial
+//! constants and returns the first six state words.
+
 use super::SHA512;
 
 use super::Digest;
 use super::HashStream;
 
+/// Stateful SHA-384 compressor backed by the SHA-512 state layout.
 pub struct SHA384(SHA512);
 
 impl Default for SHA384 {

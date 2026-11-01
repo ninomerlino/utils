@@ -1,5 +1,15 @@
+//! SHA-256 hasher.
+//!
+//! Shape:
+//! - block size: 64 bytes
+//! - schedule: 64 `u32` words
+//! - digest: 32 bytes
+//!
+//! This is the standard 32-bit-word member of the SHA-2 family.
+
 use crate::sha::{HashStream, digest::Digest};
 
+/// SHA-256 round constants, one per compression round.
 const K: [u32; 64] = [
     0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
     0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
@@ -11,6 +21,7 @@ const K: [u32; 64] = [
     0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2,
 ];
 
+/// Stateful SHA-256 compressor.
 pub struct SHA256 {
     pub(super) h0: u32,
     pub(super) h1: u32,

@@ -1,5 +1,16 @@
+//! SHA-224 hasher.
+//!
+//! Shape:
+//! - block size: 64 bytes
+//! - schedule: 64 `u32` words
+//! - digest: 28 bytes
+//!
+//! SHA-224 reuses the SHA-256 compression function with SHA-224 initial
+//! constants and a shorter digest.
+
 use super::{Digest, HashStream, SHA256};
 
+/// Stateful SHA-224 compressor backed by the SHA-256 state layout.
 pub struct SHA224(SHA256);
 
 impl HashStream<64, 64, 28, 8, u32> for SHA224 {
