@@ -224,7 +224,7 @@ fn vector_rem_operator_takes_component_remainders() {
 #[test]
 fn vector_shl_operator_shifts_components_left() {
     assert_eq!(
-        Vector::from([1_u32, 8, 32]) << Vector::from([1_u32, 2, 3]),
+        Vector::from([1_i32, 8, 32]) << Vector::from([1_i32, 2, 3]),
         Vector::from([2, 32, 256])
     );
 }
@@ -232,7 +232,7 @@ fn vector_shl_operator_shifts_components_left() {
 #[test]
 fn vector_shr_operator_shifts_components_right() {
     assert_eq!(
-        Vector::from([1_u32, 8, 32]) >> Vector::from([1_u32, 2, 3]),
+        Vector::from([1_i32, 8, 32]) >> Vector::from([1_i32, 2, 3]),
         Vector::from([0, 2, 4])
     );
 }
@@ -240,7 +240,7 @@ fn vector_shr_operator_shifts_components_right() {
 #[test]
 fn vector_bitand_operator_ands_components() {
     assert_eq!(
-        Vector::from([0b1100_u32, 0b1010, 0b0110]) & Vector::from([0b1010_u32, 0b0101, 0b0011]),
+        Vector::from([0b1100_i32, 0b1010, 0b0110]) & Vector::from([0b1010_i32, 0b0101, 0b0011]),
         Vector::from([0b1000, 0b0000, 0b0010])
     );
 }
@@ -248,7 +248,7 @@ fn vector_bitand_operator_ands_components() {
 #[test]
 fn vector_bitor_operator_ors_components() {
     assert_eq!(
-        Vector::from([0b1100_u32, 0b1010, 0b0110]) | Vector::from([0b1010_u32, 0b0101, 0b0011]),
+        Vector::from([0b1100_i32, 0b1010, 0b0110]) | Vector::from([0b1010_i32, 0b0101, 0b0011]),
         Vector::from([0b1110, 0b1111, 0b0111])
     );
 }
@@ -256,7 +256,7 @@ fn vector_bitor_operator_ors_components() {
 #[test]
 fn vector_bitxor_operator_xors_components() {
     assert_eq!(
-        Vector::from([0b1100_u32, 0b1010, 0b0110]) ^ Vector::from([0b1010_u32, 0b0101, 0b0011]),
+        Vector::from([0b1100_i32, 0b1010, 0b0110]) ^ Vector::from([0b1010_i32, 0b0101, 0b0011]),
         Vector::from([0b0110, 0b1111, 0b0101])
     );
 }
@@ -298,36 +298,36 @@ fn vector_rem_assign_operator_takes_component_remainders() {
 
 #[test]
 fn vector_shl_assign_operator_shifts_components_left() {
-    let mut value = Vector::from([1_u32, 8, 32]);
-    value <<= Vector::from([1_u32, 2, 3]);
+    let mut value = Vector::from([1_i32, 8, 32]);
+    value <<= Vector::from([1_i32, 2, 3]);
     assert_eq!(value, Vector::from([2, 32, 256]));
 }
 
 #[test]
 fn vector_shr_assign_operator_shifts_components_right() {
-    let mut value = Vector::from([1_u32, 8, 32]);
-    value >>= Vector::from([1_u32, 2, 3]);
+    let mut value = Vector::from([1_i32, 8, 32]);
+    value >>= Vector::from([1_i32, 2, 3]);
     assert_eq!(value, Vector::from([0, 2, 4]));
 }
 
 #[test]
 fn vector_bitand_assign_operator_ands_components() {
-    let mut value = Vector::from([0b1100_u32, 0b1010, 0b0110]);
-    value &= Vector::from([0b1010_u32, 0b0101, 0b0011]);
+    let mut value = Vector::from([0b1100_i32, 0b1010, 0b0110]);
+    value &= Vector::from([0b1010_i32, 0b0101, 0b0011]);
     assert_eq!(value, Vector::from([0b1000, 0b0000, 0b0010]));
 }
 
 #[test]
 fn vector_bitor_assign_operator_ors_components() {
-    let mut value = Vector::from([0b1100_u32, 0b1010, 0b0110]);
-    value |= Vector::from([0b1010_u32, 0b0101, 0b0011]);
+    let mut value = Vector::from([0b1100_i32, 0b1010, 0b0110]);
+    value |= Vector::from([0b1010_i32, 0b0101, 0b0011]);
     assert_eq!(value, Vector::from([0b1110, 0b1111, 0b0111]));
 }
 
 #[test]
 fn vector_bitxor_assign_operator_xors_components() {
-    let mut value = Vector::from([0b1100_u32, 0b1010, 0b0110]);
-    value ^= Vector::from([0b1010_u32, 0b0101, 0b0011]);
+    let mut value = Vector::from([0b1100_i32, 0b1010, 0b0110]);
+    value ^= Vector::from([0b1010_i32, 0b0101, 0b0011]);
     assert_eq!(value, Vector::from([0b0110, 0b1111, 0b0101]));
 }
 
@@ -359,20 +359,20 @@ fn scalar_rem_operator_takes_component_remainders() {
 #[test]
 fn scalar_shl_operator_shifts_components_left() {
     assert_eq!(
-        Vector::from([1_u32, 8, 32]) << 2,
+        Vector::from([1_i32, 8, 32]) << 2,
         Vector::from([4, 32, 128])
     );
 }
 
 #[test]
 fn scalar_shr_operator_shifts_components_right() {
-    assert_eq!(Vector::from([1_u32, 8, 32]) >> 2, Vector::from([0, 2, 8]));
+    assert_eq!(Vector::from([1_i32, 8, 32]) >> 2, Vector::from([0, 2, 8]));
 }
 
 #[test]
 fn scalar_bitand_operator_ands_components() {
     assert_eq!(
-        Vector::from([0b1100_u32, 0b1010, 0b0110]) & 0b1010,
+        Vector::from([0b1100_i32, 0b1010, 0b0110]) & 0b1010,
         Vector::from([0b1000, 0b1010, 0b0010])
     );
 }
@@ -380,7 +380,7 @@ fn scalar_bitand_operator_ands_components() {
 #[test]
 fn scalar_bitor_operator_ors_components() {
     assert_eq!(
-        Vector::from([0b1100_u32, 0b1010, 0b0110]) | 0b0011,
+        Vector::from([0b1100_i32, 0b1010, 0b0110]) | 0b0011,
         Vector::from([0b1111, 0b1011, 0b0111])
     );
 }
@@ -388,7 +388,7 @@ fn scalar_bitor_operator_ors_components() {
 #[test]
 fn scalar_bitxor_operator_xors_components() {
     assert_eq!(
-        Vector::from([0b1100_u32, 0b1010, 0b0110]) ^ 0b0101,
+        Vector::from([0b1100_i32, 0b1010, 0b0110]) ^ 0b0101,
         Vector::from([0b1001, 0b1111, 0b0011])
     );
 }
@@ -430,35 +430,35 @@ fn scalar_rem_assign_operator_takes_component_remainders() {
 
 #[test]
 fn scalar_shl_assign_operator_shifts_components_left() {
-    let mut value = Vector::from([1_u32, 8, 32]);
+    let mut value = Vector::from([1_i32, 8, 32]);
     value <<= 2;
     assert_eq!(value, Vector::from([4, 32, 128]));
 }
 
 #[test]
 fn scalar_shr_assign_operator_shifts_components_right() {
-    let mut value = Vector::from([4_u32, 32, 128]);
+    let mut value = Vector::from([4_i32, 32, 128]);
     value >>= 2;
     assert_eq!(value, Vector::from([1, 8, 32]));
 }
 
 #[test]
 fn scalar_bitand_assign_operator_ands_components() {
-    let mut value = Vector::from([0b1100_u32, 0b1010, 0b0110]);
+    let mut value = Vector::from([0b1100_i32, 0b1010, 0b0110]);
     value &= 0b1010;
     assert_eq!(value, Vector::from([0b1000, 0b1010, 0b0010]));
 }
 
 #[test]
 fn scalar_bitor_assign_operator_ors_components() {
-    let mut value = Vector::from([0b1000_u32, 0b1010, 0b0010]);
+    let mut value = Vector::from([0b1000_i32, 0b1010, 0b0010]);
     value |= 0b0101;
     assert_eq!(value, Vector::from([0b1101, 0b1111, 0b0111]));
 }
 
 #[test]
 fn scalar_bitxor_assign_operator_xors_components() {
-    let mut value = Vector::from([0b1101_u32, 0b1111, 0b0111]);
+    let mut value = Vector::from([0b1101_i32, 0b1111, 0b0111]);
     value ^= 0b0011;
     assert_eq!(value, Vector::from([0b1110, 0b1100, 0b0100]));
 }
