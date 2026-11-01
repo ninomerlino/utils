@@ -18,13 +18,18 @@
 - Cholesky Decomposition
 - LDL Decomposition
 - LUP Decomposition
-
-> coming soon
 - QR Decomposition
 - Least Squares
 - Determinant
+- Inverse Matrix
+- 
+> coming soon
 - Eigenvalues
 - Eigenvectors
 
 ## Sorting
+> coming soon
+
+
+## Linear and Polinomial regression
 > coming soon
