@@ -10,6 +10,10 @@ use std::{
 use super::vector::{Vector, VectorType};
 
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Eq)]
+/// A fixed-size matrix with `ROWS` rows and `COLS` columns.
+///
+/// Entries are stored as row vectors. The dimensions are encoded in the type,
+/// so operations with incompatible shapes cannot be expressed.
 pub struct Matrix<T: VectorType, const ROWS: usize, const COLS: usize> {
     values: [Vector<T, COLS>; ROWS],
 }
@@ -19,26 +23,32 @@ pub struct Matrix<T: VectorType, const ROWS: usize, const COLS: usize> {
 // ============================================================
 
 impl<T: VectorType, const ROWS: usize, const COLS: usize> Matrix<T, ROWS, COLS> {
+    /// Returns the number of rows, `ROWS`.
     pub fn rows(&self) -> usize {
         ROWS
     }
 
+    /// Returns the number of columns, `COLS`.
     pub fn cols(&self) -> usize {
         COLS
     }
 
+    /// Returns whether this matrix is square.
     pub fn is_square(&self) -> bool {
         self.rows() == self.cols()
     }
 
+    /// Iterates over the matrix rows by shared reference.
     pub fn iter(&self) -> std::slice::Iter<'_, Vector<T, COLS>> {
         self.values.iter()
     }
 
+    /// Iterates over the matrix rows by mutable reference.
     pub fn iter_mut(&mut self) -> std::slice::IterMut<'_, Vector<T, COLS>> {
         self.values.iter_mut()
     }
 
+    /// Copies column `index` into a vector of length `ROWS`.
     pub fn get_column(&self, index: usize) -> Vector<T, ROWS> {
         let mut vector = Vector::default();
 
@@ -49,20 +59,25 @@ impl<T: VectorType, const ROWS: usize, const COLS: usize> Matrix<T, ROWS, COLS> 
         vector
     }
 
+    /// Replaces column `index` with `vector`.
     pub fn set_column(&mut self, index: usize, vector: &Vector<T, ROWS>) {
         for row in 0..ROWS {
             self[row][index] = vector[row];
         }
     }
 
+    /// Copies row `index` into a vector of length `COLS`.
     pub fn get_row(&self, index: usize) -> Vector<T, COLS> {
         self[index]
     }
 
+    /// Replaces row `index` with `vector`.
     pub fn set_row(&mut self, index: usize, vector: &Vector<T, COLS>) {
         self[index] = *vector;
     }
 
+    /// Computes the matrix-vector product. The input has `COLS` entries and
+    /// the result has `ROWS` entries.
     pub fn dot_vector(&self, vector: &Vector<T, COLS>) -> Vector<T, ROWS> {
         let mut result = Vector::default();
         for row in 0..ROWS {
@@ -71,6 +86,7 @@ impl<T: VectorType, const ROWS: usize, const COLS: usize> Matrix<T, ROWS, COLS> 
         result
     }
 
+    /// Computes the row-by-column matrix product `self * other`.
     pub fn dot_matrix<const OTHER_COLS: usize>(
         &self,
         other: &Matrix<T, COLS, OTHER_COLS>,
@@ -87,12 +103,14 @@ impl<T: VectorType, const ROWS: usize, const COLS: usize> Matrix<T, ROWS, COLS> 
         result
     }
 
+    /// Swaps two complete rows.
     pub fn swap_rows(&mut self, row_a: usize, row_b: usize) {
         let t = self[row_a];
         self[row_a] = self[row_b];
         self[row_b] = t;
     }
 
+    /// Swaps two rows only within the selected column range.
     pub fn swap_rows_partial(&mut self, row_a: usize, row_b: usize, mask: Range<usize>) {
         for col in mask {
             let t = self[row_a][col];
@@ -101,6 +119,7 @@ impl<T: VectorType, const ROWS: usize, const COLS: usize> Matrix<T, ROWS, COLS> 
         }
     }
 
+    /// Swaps two complete columns.
     pub fn swap_cols(&mut self, col_a: usize, col_b: usize) {
         let a = self.get_column(col_a);
         let b = self.get_column(col_b);
@@ -108,6 +127,7 @@ impl<T: VectorType, const ROWS: usize, const COLS: usize> Matrix<T, ROWS, COLS> 
         self.set_column(col_b, &a);
     }
 
+    /// Swaps two columns only within the selected row range.
     pub fn swap_cols_partial(&mut self, col_a: usize, col_b: usize, mask: Range<usize>) {
         for row in mask {
             let t = self[row][col_a];
@@ -116,22 +136,30 @@ impl<T: VectorType, const ROWS: usize, const COLS: usize> Matrix<T, ROWS, COLS> 
         }
     }
 
+    /// Returns the maximum entry and its column index in the selected row.
     pub fn max_from_row(&self, row: usize) -> Option<(T, usize)> {
         self[row].max()
     }
 
+    /// Returns the maximum entry and its row index in the selected column.
     pub fn max_from_col(&self, col: usize) -> Option<(T, usize)> {
         self.get_column(col).max()
     }
 
+    /// Returns the entry with greatest absolute value and its column index in
+    /// the selected row.
     pub fn abs_max_from_row(&self, row: usize) -> Option<(T, usize)> {
         self[row].abs().max()
     }
 
+    /// Returns the entry with greatest absolute value and its row index in the
+    /// selected column.
     pub fn abs_max_from_col(&self, col: usize) -> Option<(T, usize)> {
         self.get_column(col).abs().max()
     }
 
+    /// Returns the entry with greatest absolute value and its row index in the
+    /// selected column range.
     pub fn abs_max_from_col_partial(&self, col: usize, mask: Range<usize>) -> Option<(T, usize)> {
         let mut max = Option::None;
         for row in mask {
@@ -735,5 +763,36 @@ where
         for i in 0..ROWS {
             self.values[i] ^= rhs
         }
+    }
+}
+
+impl<'a, T: VectorType, const ROWS: usize, const COLS: usize> IntoIterator
+    for &'a Matrix<T, ROWS, COLS>
+{
+    type Item = &'a Vector<T, COLS>;
+    type IntoIter = std::slice::Iter<'a, Vector<T, COLS>>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.values.iter()
+    }
+}
+
+impl<'a, T: VectorType, const ROWS: usize, const COLS: usize> IntoIterator
+    for &'a mut Matrix<T, ROWS, COLS>
+{
+    type Item = &'a mut Vector<T, COLS>;
+    type IntoIter = std::slice::IterMut<'a, Vector<T, COLS>>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.values.iter_mut()
+    }
+}
+
+impl<T: VectorType, const ROWS: usize, const COLS: usize> IntoIterator for Matrix<T, ROWS, COLS> {
+    type Item = Vector<T, COLS>;
+    type IntoIter = std::array::IntoIter<Vector<T, COLS>, ROWS>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.values.into_iter()
     }
 }

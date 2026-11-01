@@ -8,6 +8,11 @@ use std::{
     },
 };
 
+/// Numeric operations required by [`Vector`] and [`super::Matrix`].
+///
+/// Implementations are provided for the built-in signed integer and floating
+/// point types. Decompositions and least-squares operations are intended for
+/// floating-point types; integer division and square roots truncate.
 pub trait VectorType:
     Default
     + Copy
@@ -25,6 +30,7 @@ pub trait VectorType:
     + PartialEq
     + PartialOrd
     + Debug
+    + Neg<Output = Self>
 {
     fn unit() -> Self;
     fn epsilon() -> Self;
@@ -32,9 +38,7 @@ pub trait VectorType:
     fn approximate_zero(self) -> bool {
         self.absolute_value() <= Self::epsilon()
     }
-}
-
-pub trait RealVector: VectorType {
+    fn sign(self) -> Self;
     fn sqrt(self) -> Self;
 }
 
@@ -50,6 +54,17 @@ impl VectorType for i8 {
     fn absolute_value(self) -> Self {
         self.abs()
     }
+
+    fn approximate_zero(self) -> bool {
+        self.absolute_value() <= Self::epsilon()
+    }
+
+    fn sign(self) -> Self {
+        self.signum()
+    }
+    fn sqrt(self) -> Self {
+        self.isqrt()
+    }
 }
 impl VectorType for i16 {
     fn unit() -> Self {
@@ -60,6 +75,13 @@ impl VectorType for i16 {
     }
     fn absolute_value(self) -> Self {
         self.abs()
+    }
+
+    fn sign(self) -> Self {
+        self.signum()
+    }
+    fn sqrt(self) -> Self {
+        self.isqrt()
     }
 }
 impl VectorType for i32 {
@@ -72,6 +94,12 @@ impl VectorType for i32 {
     fn absolute_value(self) -> Self {
         self.abs()
     }
+    fn sign(self) -> Self {
+        self.signum()
+    }
+    fn sqrt(self) -> Self {
+        self.isqrt()
+    }
 }
 impl VectorType for i64 {
     fn unit() -> Self {
@@ -82,6 +110,12 @@ impl VectorType for i64 {
     }
     fn absolute_value(self) -> Self {
         self.abs()
+    }
+    fn sign(self) -> Self {
+        self.signum()
+    }
+    fn sqrt(self) -> Self {
+        self.isqrt()
     }
 }
 impl VectorType for i128 {
@@ -94,61 +128,11 @@ impl VectorType for i128 {
     fn absolute_value(self) -> Self {
         self.abs()
     }
-}
-
-impl VectorType for u8 {
-    fn unit() -> Self {
-        1
+    fn sign(self) -> Self {
+        self.signum()
     }
-    fn epsilon() -> Self {
-        0
-    }
-    fn absolute_value(self) -> Self {
-        self
-    }
-}
-impl VectorType for u16 {
-    fn unit() -> Self {
-        1
-    }
-    fn epsilon() -> Self {
-        0
-    }
-    fn absolute_value(self) -> Self {
-        self
-    }
-}
-impl VectorType for u32 {
-    fn unit() -> Self {
-        1
-    }
-    fn epsilon() -> Self {
-        0
-    }
-    fn absolute_value(self) -> Self {
-        self
-    }
-}
-impl VectorType for u64 {
-    fn unit() -> Self {
-        1
-    }
-    fn epsilon() -> Self {
-        0
-    }
-    fn absolute_value(self) -> Self {
-        self
-    }
-}
-impl VectorType for u128 {
-    fn unit() -> Self {
-        1
-    }
-    fn epsilon() -> Self {
-        0
-    }
-    fn absolute_value(self) -> Self {
-        self
+    fn sqrt(self) -> Self {
+        self.isqrt()
     }
 }
 
@@ -162,6 +146,12 @@ impl VectorType for f32 {
     fn absolute_value(self) -> Self {
         self.abs()
     }
+    fn sign(self) -> Self {
+        self.signum()
+    }
+    fn sqrt(self) -> Self {
+        f32::sqrt(self)
+    }
 }
 impl VectorType for f64 {
     fn unit() -> Self {
@@ -173,69 +163,76 @@ impl VectorType for f64 {
     fn absolute_value(self) -> Self {
         self.abs()
     }
-}
-
-impl RealVector for f32 {
-    fn sqrt(self) -> Self {
-        f32::sqrt(self)
+    fn sign(self) -> Self {
+        self.signum()
     }
-}
-
-impl RealVector for f64 {
     fn sqrt(self) -> Self {
         f64::sqrt(self)
     }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Eq)]
+/// A fixed-size vector containing `SIZE` values of type `Type`.
 pub struct Vector<Type: VectorType, const SIZE: usize> {
     values: [Type; SIZE],
 }
 
 impl<T: VectorType, const S: usize> Vector<T, S> {
+    /// Creates a vector whose entries are all the numeric unit value.
     pub fn unit() -> Self {
         Self::from(T::unit())
     }
 
+    /// Returns the vector's compile-time length, `S`.
     pub fn len(&self) -> usize {
         S
     }
 
+    /// Iterates over the entries by shared reference.
     pub fn iter(&self) -> std::slice::Iter<'_, T> {
         self.values.iter()
     }
 
+    /// Iterates over the entries by mutable reference.
     pub fn iter_mut(&mut self) -> std::slice::IterMut<'_, T> {
         self.values.iter_mut()
     }
 
+    /// Returns the sum of the entries.
     pub fn sum(&self) -> T {
         self.values.iter().fold(T::default(), |acc, val| acc + *val)
     }
 
+    /// Returns the squared Euclidean length, the sum of each entry squared.
     pub fn magnitude_squared(&self) -> T {
         self.values
             .iter()
             .fold(T::default(), |acc, &val| (val * val) + acc)
     }
 
+    /// Returns the dot product with `other`.
     pub fn dot(&self, other: &Self) -> T {
         (*self * *other).sum()
     }
 
+    /// Returns the Manhattan distance, the sum of absolute coordinate
+    /// differences. The historical method name contains a spelling error.
     pub fn manahattan_distance(&self, other: &Self) -> T {
         (*self - *other).abs().sum()
     }
 
+    /// Counts the coordinates that differ between the two vectors.
     pub fn hamming_distance(&self, other: &Self) -> usize {
         let zero = T::default();
         (*self - *other).iter().filter(|&&i| i != zero).count()
     }
 
+    /// Returns the squared Euclidean distance between the vectors.
     pub fn squared_euclidian_distance(&self, other: &Self) -> T {
         (*self - *other).magnitude_squared()
     }
 
+    /// Returns the greatest entry and its index, or `None` for an empty vector.
     pub fn max(&self) -> Option<(T, usize)> {
         let mut t: Option<(T, usize)> = Option::None;
 
@@ -251,6 +248,7 @@ impl<T: VectorType, const S: usize> Vector<T, S> {
         t
     }
 
+    /// Returns the least entry and its index, or `None` for an empty vector.
     pub fn min(&self) -> Option<(T, usize)> {
         let mut t: Option<(T, usize)> = Option::None;
 
@@ -266,6 +264,7 @@ impl<T: VectorType, const S: usize> Vector<T, S> {
         t
     }
 
+    /// Returns the arithmetic mean of the entries.
     pub fn avg(&self) -> T {
         let mut sum = T::default();
         let mut len = T::default();
@@ -277,10 +276,16 @@ impl<T: VectorType, const S: usize> Vector<T, S> {
         sum / len
     }
 
+    pub fn product(&self) -> T {
+        self.values.iter().fold(T::unit(), |acc, &a| acc * a)
+    }
+
+    /// Reverses the order of the entries in place.
     pub fn reverse(&mut self) {
         self.values.reverse();
     }
 
+    /// Returns a vector containing the absolute value of each entry.
     pub fn abs(&self) -> Self {
         let mut r = *self;
         for v in r.iter_mut() {
@@ -288,34 +293,40 @@ impl<T: VectorType, const S: usize> Vector<T, S> {
         }
         r
     }
-}
 
-impl<T: RealVector, const S: usize> Vector<T, S> {
+    /// Returns the Euclidean length of the vector.
     pub fn magnitude(&self) -> T {
         T::sqrt(self.magnitude_squared())
     }
 
+    /// Returns this vector divided by its magnitude. A zero vector cannot be
+    /// normalized.
     pub fn normalized(&self) -> Self {
         *self / self.magnitude()
     }
 
+    /// Returns the cosine of the angle between this vector and `other`.
     pub fn cosine(&self, other: &Self) -> T {
         dbg!(self.dot(other)) / self.magnitude() / other.magnitude()
     }
 
+    /// Returns the sine magnitude of the angle between this vector and `other`.
     pub fn sine(&self, other: &Self) -> T {
         let cosine = self.cosine(other);
         T::sqrt(T::unit() - cosine * cosine)
     }
 
+    /// Returns the Euclidean distance between the vectors.
     pub fn euclidian_distance(&self, other: &Self) -> T {
         (*self - *other).magnitude()
     }
 
+    /// Returns the coordinate-wise reciprocal. Zero entries divide by zero.
     pub fn reciprocal(&self) -> Self {
         Self::unit() / *self
     }
 
+    /// Returns the population standard deviation of the entries.
     pub fn std_deviation(&self) -> T {
         let mean = self.avg();
         let mut sum = T::default();
@@ -330,6 +341,7 @@ impl<T> Vector<T, 3>
 where
     T: VectorType,
 {
+    /// Returns the three-dimensional cross product.
     pub fn cross(&self, other: &Self) -> Self {
         Self {
             values: [
@@ -891,5 +903,32 @@ where
         for i in 0..S {
             self.values[i] ^= rhs
         }
+    }
+}
+
+impl<'a, T: VectorType, const S: usize> IntoIterator for &'a Vector<T, S> {
+    type Item = &'a T;
+    type IntoIter = std::slice::Iter<'a, T>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.values.iter()
+    }
+}
+
+impl<'a, T: VectorType, const S: usize> IntoIterator for &'a mut Vector<T, S> {
+    type Item = &'a mut T;
+    type IntoIter = std::slice::IterMut<'a, T>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.values.iter_mut()
+    }
+}
+
+impl<T: VectorType, const S: usize> IntoIterator for Vector<T, S> {
+    type Item = T;
+    type IntoIter = std::array::IntoIter<T, S>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.values.into_iter()
     }
 }

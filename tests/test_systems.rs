@@ -125,5 +125,129 @@ fn solve_solves_linear_system() {
     let matrix = Matrix::from([[2.0, 1.0], [5.0, 7.0]]);
     let b = Vector::from([35.0, 146.0]);
 
-    assert_vector_approx_eq(matrix.solve(&b), [11.0, 13.0]);
+    assert_vector_approx_eq(matrix.solve(&b).unwrap(), [11.0, 13.0]);
+}
+
+#[test]
+fn qr_decomposition_reconstructs_tall_matrix_with_orthonormal_q() {
+    let matrix = Matrix::from([[1.0, 0.0], [1.0, 1.0], [1.0, 2.0]]);
+    let (q, r) = matrix.qr_decomposition().unwrap();
+
+    assert_matrix_approx_eq(
+        Matrix::from(multiply(q, r)),
+        [[1.0, 0.0], [1.0, 1.0], [1.0, 2.0]],
+    );
+
+    let q0 = q.get_column(0);
+    let q1 = q.get_column(1);
+    assert_approx_eq(q0.dot(&q0), 1.0);
+    assert_approx_eq(q1.dot(&q1), 1.0);
+    assert_approx_eq(q0.dot(&q1), 0.0);
+    assert_approx_eq(r[(1, 0)], 0.0);
+}
+
+#[test]
+fn least_squares_returns_coefficients_and_squared_error() {
+    let design = Matrix::from([[1.0, 0.0], [1.0, 1.0], [1.0, 2.0]]);
+    let targets = Vector::from([2.0, 2.0, 0.0]);
+    let (coefficients, loss) = design.least_squares(&targets).unwrap();
+
+    assert_vector_approx_eq(coefficients, [7.0 / 3.0, -1.0]);
+    assert_approx_eq(loss, 2.0 / 3.0);
+}
+
+#[test]
+fn determinant_returns_diagonal_product_when_no_row_swaps_are_needed() {
+    let matrix = Matrix::from([[2.0, 0.0], [0.0, 3.0]]);
+
+    assert_approx_eq(matrix.determinant(), 6.0);
+}
+
+#[test]
+fn determinant_accounts_for_odd_number_of_row_swaps() {
+    let matrix = Matrix::from([[0.0, 1.0], [1.0, 0.0]]);
+
+    assert_approx_eq(matrix.determinant(), -1.0);
+}
+
+#[test]
+fn determinant_accounts_for_even_number_of_row_swaps() {
+    let matrix = Matrix::from([[0.0, 1.0, 0.0], [0.0, 0.0, 1.0], [1.0, 0.0, 0.0]]);
+
+    assert_approx_eq(matrix.determinant(), 1.0);
+}
+
+#[test]
+fn determinant_returns_zero_for_singular_matrix() {
+    let matrix = Matrix::from([[1.0, 2.0], [2.0, 4.0]]);
+
+    assert_approx_eq(matrix.determinant(), 0.0);
+}
+
+#[test]
+fn inverse_uses_lup_with_row_pivoting() {
+    let matrix = Matrix::from([[0.0, 2.0], [1.0, 3.0]]);
+    let inverse = matrix.inverse().unwrap();
+
+    assert_matrix_approx_eq(inverse, [[-1.5, 1.0], [0.5, 0.0]]);
+    assert_matrix_approx_eq(
+        Matrix::from(multiply(matrix, inverse)),
+        [[1.0, 0.0], [0.0, 1.0]],
+    );
+    assert_matrix_approx_eq(
+        Matrix::from(multiply(inverse, matrix)),
+        [[1.0, 0.0], [0.0, 1.0]],
+    );
+}
+
+#[test]
+fn inverse_returns_none_for_singular_matrix() {
+    let matrix = Matrix::from([[1.0, 2.0], [2.0, 4.0]]);
+
+    assert!(matrix.inverse().is_none());
+}
+
+#[test]
+fn vector_iterators_support_shared_mutable_and_owned_iteration() {
+    let mut vector = Vector::from([2.0, 3.0, 4.0]);
+
+    let shared_values: Vec<_> = (&vector).into_iter().copied().collect();
+    assert_eq!(shared_values, vec![2.0, 3.0, 4.0]);
+
+    for value in &mut vector {
+        *value *= 2.0;
+    }
+    assert_eq!(
+        vector.iter().copied().collect::<Vec<_>>(),
+        vec![4.0, 6.0, 8.0]
+    );
+
+    let owned_values: Vec<_> = vector.into_iter().collect();
+    assert_eq!(owned_values, vec![4.0, 6.0, 8.0]);
+}
+
+#[test]
+fn matrix_iterators_iterate_over_rows() {
+    let mut matrix = Matrix::from([[1.0, 2.0], [3.0, 4.0]]);
+
+    let rows: Vec<Vec<_>> = (&matrix)
+        .into_iter()
+        .map(|row| row.iter().copied().collect())
+        .collect();
+    assert_eq!(rows, vec![vec![1.0, 2.0], vec![3.0, 4.0]]);
+
+    for row in &mut matrix {
+        row[0] += 10.0;
+    }
+    assert_matrix_approx_eq(matrix, [[11.0, 2.0], [13.0, 4.0]]);
+
+    let owned_rows: Vec<_> = matrix.into_iter().collect();
+    assert_vector_approx_eq(owned_rows[0], [11.0, 2.0]);
+    assert_vector_approx_eq(owned_rows[1], [13.0, 4.0]);
+}
+
+#[test]
+fn vector_product_multiplies_all_entries_and_uses_one_for_empty_vector() {
+    assert_approx_eq(Vector::from([2.0, 3.0, 4.0]).product(), 24.0);
+    assert_approx_eq(Vector::<f64, 0>::default().product(), 1.0);
 }
