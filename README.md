@@ -22,7 +22,6 @@
 - Least Squares
 - Determinant
 - Inverse Matrix
-- 
 > coming soon
 - Eigenvalues
 - Eigenvectors
@@ -33,3 +32,5 @@
 
 ## Linear and Polinomial regression
 > coming soon
+
+
