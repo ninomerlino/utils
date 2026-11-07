@@ -75,7 +75,7 @@ pub fn selection_sort<T: Copy + PartialOrd + PartialEq>(data: &mut [T], order: O
     for pos in 0..(data.len() - 1) {
         let mut min_pos = pos;
         for cur in pos + 1..data.len() {
-            if (data[cur] < data[min_pos]) {
+            if data[cur] < data[min_pos] {
                 min_pos = cur;
             }
         }

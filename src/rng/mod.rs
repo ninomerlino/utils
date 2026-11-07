@@ -7,8 +7,13 @@
 
 use std::f64;
 
+use wide::{f64x2, f64x4, u64x2, u64x4};
+
 use crate::Error::{EmptySlicePick, ZeroRngState};
 use crate::Result;
+
+static E2 : f64x2 = f64x2::splat(std::f64::consts::E);
+static E4 : f64x4 = f64x4::splat(std::f64::consts::E);
 
 /// Common operations provided by a pseudo-random number generator.
 pub trait PRNG {
@@ -50,17 +55,35 @@ pub trait PRNG {
 
     /// Returns a uniformly distributed `f64` in the open interval `(0, 1)`.
     ///
-    /// The value is built from 53 random bits, matching the precision of an
-    /// `f64` significand. The open interval is useful for transformations that
-    /// apply `ln`, since the result can never be exactly zero.
+    /// The value is built from 52 random bits and scaled into the open interval
+    /// `(0, 1)`. The open interval is useful for transformations that apply
+    /// `ln`, since the result can never be exactly zero or one.
     fn uniform(&mut self) -> f64 {
-        let bits = self.random() >> 11;
-        (bits as f64 + 0.5) / (1u64 << 53) as f64
+        let bits = self.random() >> 12;
+        (bits as f64 + 1.0) / ((1u64 << 52) + 1) as f64
+    }
+
+    /// Returns four uniformly distributed `f64` values in the open interval
+    /// `(0, 1)`, using four successive outputs from the generator.
+    fn uniform_2(&mut self) -> f64x2 {
+        let bits: u64x2 = u64x2::new([self.random(), self.random()]) >> 12;
+        let values = f64x2::new(bits.to_array().map(|value| value as f64));
+        (values + 1.0) / f64x2::splat(((1u64 << 52) + 1) as f64)
+    }
+
+    /// Returns four uniformly distributed `f64` values in the open interval
+    /// `(0, 1)`, using four successive outputs from the generator.
+    fn uniform_4(&mut self) -> f64x4 {
+        let bits: u64x4 =
+            u64x4::new([self.random(), self.random(), self.random(), self.random()]) >> 12;
+        let values = f64x4::new(bits.to_array().map(|value| value as f64));
+        (values + 1.0) / f64x4::splat(((1u64 << 52) + 1) as f64)
     }
 
     /// Returns a standard-normal value with mean `0` and standard deviation
     /// `1`, using ratio-of-uniforms rejection sampling.
     fn normal(&mut self) -> f64 {
+        let e =
         loop {
             let u = self.uniform();
             let v = (2.0 * self.uniform() - 1.0) * (2.0 / f64::consts::E).sqrt();

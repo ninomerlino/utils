@@ -8,6 +8,7 @@ getrandom = "0.4.3"
 itertools = "0.15.0"
 serde = { version = "1.0.229", features = ["derive"], optional = true }
 thiserror = "2.0.21"
+wide = "1.7.1"
 
 [dev-dependencies]
 sha = "1.0.3"
