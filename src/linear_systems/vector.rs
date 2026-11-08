@@ -188,6 +188,10 @@ impl<T: VectorType, const S: usize> Vector<T, S> {
         S
     }
 
+    pub fn is_empty(&self) -> bool {
+        S == 0
+    }
+
     /// Iterates over the entries by shared reference.
     pub fn iter(&self) -> std::slice::Iter<'_, T> {
         self.values.iter()

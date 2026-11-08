@@ -45,7 +45,7 @@ fn shift_down<T: Copy + PartialOrd + PartialEq>(data: &mut [T], root: usize) {
 /// The algorithm runs in `O(n log n)` time and uses `O(1)` auxiliary space.
 /// It is not stable.
 pub fn heap_sort<T: Copy + PartialOrd + PartialEq>(data: &mut [T], order: Order) {
-    if data.len() == 0 || data.len() == 1 {
+    if data.is_empty() || data.len() == 1 {
         return;
     }
 
@@ -68,7 +68,7 @@ pub fn heap_sort<T: Copy + PartialOrd + PartialEq>(data: &mut [T], order: Order)
 /// Selection sort runs in `O(n²)` time and uses `O(1)` auxiliary space. It is
 /// not stable in this implementation.
 pub fn selection_sort<T: Copy + PartialOrd + PartialEq>(data: &mut [T], order: Order) {
-    if data.len() == 0 || data.len() == 1 {
+    if data.is_empty() || data.len() == 1 {
         return;
     }
 
@@ -87,7 +87,7 @@ pub fn selection_sort<T: Copy + PartialOrd + PartialEq>(data: &mut [T], order: O
 }
 
 fn _insertion_sort<T: Copy + PartialOrd + PartialEq>(data: &mut [T]) {
-    if data.len() == 0 || data.len() == 1 {
+    if data.is_empty() || data.len() == 1 {
         return;
     }
 
@@ -120,7 +120,7 @@ fn pivot_data<T: Copy + PartialOrd + PartialEq>(
     data: &mut [T],
     rng: &mut impl PRNG,
 ) -> (usize, usize) {
-    let random = rng.random_pick(data).unwrap();
+    let random = rng.usize(data.len());
     let pivot = data[random];
 
     let mut low = 0;

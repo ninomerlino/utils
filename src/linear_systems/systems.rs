@@ -24,6 +24,8 @@ impl Default for MatrixProperties {
     }
 }
 
+type LuprTuple<T, const S: usize> = (Matrix<T, S, S>, Matrix<T, S, S>, Matrix<T, S, S>, usize);
+
 impl MatrixProperties {
     /// Returns `true` if all four properties are present.
     pub fn all(&self) -> bool {
@@ -91,7 +93,7 @@ impl<T: VectorType, const S: usize> Matrix<T, S, S> {
 
     /// Returns the transpose of this square matrix.
     pub fn transpose(&self) -> Matrix<T, S, S> {
-        let mut result = self.clone();
+        let mut result = *self;
         for row in 0..S {
             for col in 0..row {
                 let t = self[row][col];
@@ -108,18 +110,16 @@ impl<T: VectorType, const S: usize> Matrix<T, S, S> {
     /// Returns `None` when a pivot is zero or approximately zero.
     pub fn lup_decomposition(&self) -> Option<(Matrix<T, S, S>, Matrix<T, S, S>, Matrix<T, S, S>)> {
         let (l, u, p, _) = self.lupr_decomposition()?;
-        return Some((l, u, p));
+        Some((l, u, p))
     }
 
     /// Factors the matrix as `P * self = L * U` using partial pivoting.
     /// In addition to LUP factors, returns the number of row swaps performed.
     /// Returns `None` when a pivot is zero or approximately zero.
-    pub fn lupr_decomposition(
-        &self,
-    ) -> Option<(Matrix<T, S, S>, Matrix<T, S, S>, Matrix<T, S, S>, usize)> {
+    pub fn lupr_decomposition(&self) -> Option<LuprTuple<T, S>> {
         let mut p: Matrix<T, S, S> = Matrix::identity();
         let mut l: Matrix<T, S, S> = Matrix::identity();
-        let mut u: Matrix<T, S, S> = self.clone();
+        let mut u: Matrix<T, S, S> = *self;
         let mut r = 0;
 
         for i in 0..S {
@@ -192,7 +192,7 @@ impl<T: VectorType, const S: usize> Matrix<T, S, S> {
     /// symmetric positive-definite matrix. Returns `None` if a diagonal pivot
     /// is not positive.
     pub fn cholesky_decomposition(&self) -> Option<Matrix<T, S, S>> {
-        let mut l = self.clone();
+        let mut l = *self;
         for row in 0..S {
             for col in 0..=row {
                 let mut sum = T::default();
