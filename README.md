@@ -20,6 +20,25 @@
 - Determinant
 - Inverse Matrix
 
+## Random Number Generation
+- Xoshiro256 pseudo-random number generator
+- Uniform distribution
+- Normal distribution
+- Bernoulli distribution
+- Exponential distribution
+- Geometric distribution
+- Poisson distribution
+- Binomial distribution
+- Categorical distribution
+- Log-normal distribution
+- Gamma distribution
+- Beta distribution
+- Two-lane SIMD distributions
+- Four-lane SIMD distributions
+- Multiple-sample distribution generation
+- Random element selection
+- In-place slice shuffling
+
 ## Sorting
 > coming soon
 
