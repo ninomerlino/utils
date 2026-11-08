@@ -4,11 +4,31 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+getrandom = "0.4.3"
 itertools = "0.15.0"
 serde = { version = "1.0.229", features = ["derive"], optional = true }
+thiserror = "2.0.21"
+wide = "1.7.1"
 
 [dev-dependencies]
+criterion = "0.8.2"
 sha = "1.0.3"
 
 [features]
 serde = ["dep:serde"]
+
+[[bench]]
+name = "normal"
+harness = false
+
+[[bench]]
+name = "normal_multi"
+harness = false
+
+[[bench]]
+name = "exponential_multi"
+harness = false
+
+[[bench]]
+name = "normal_4"
+harness = false

@@ -10,9 +10,6 @@
 - SHA512/224
 - SHA512/256
 
-> coming soon
-- SHA3...
-
 ## Linear Systems
 - Linear Systems Solver
 - Cholesky Decomposition
@@ -22,15 +19,31 @@
 - Least Squares
 - Determinant
 - Inverse Matrix
-> coming soon
-- Eigenvalues
-- Eigenvectors
+
+## Random Number Generation
+- Xoshiro256 pseudo-random number generator
+- Uniform distribution
+- Normal distribution
+- Bernoulli distribution
+- Exponential distribution
+- Geometric distribution
+- Poisson distribution
+- Binomial distribution
+- Categorical distribution
+- Log-normal distribution
+- Gamma distribution
+- Beta distribution
+- Two-lane SIMD distributions
+- Four-lane SIMD distributions
+- Multiple-sample distribution generation
+- Random element selection
+- In-place slice shuffling
 
 ## Sorting
 > coming soon
 
 
-## Linear and Polinomial regression
-> coming soon
-
-
+## TODO
+- [ ] Eigenvalues and Eigenvectors
+- [ ] Linear and Polinomial Regression
+- [ ] Graphs (maybe if i feel like it)
