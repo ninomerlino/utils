@@ -1,0 +1,67 @@
+name: Tag merged pull request
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+concurrency:
+  group: create-version-tag
+  cancel-in-progress: false
+
+jobs:
+  create-tag:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create and push version tag
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          git fetch --tags --force origin
+
+          existing_tag="$(git tag --points-at "$GITHUB_SHA" | head -n 1 || true)"
+
+          if [[ -n "$existing_tag" ]]; then
+            echo "Commit already has tag: $existing_tag"
+            echo "No new tag will be created."
+            exit 0
+          fi
+
+          last_tag="$(
+            git tag --list \
+              | grep -E '^[0-9]+\.[0-9]+$' \
+              | sort -t. -k1,1n -k2,2n \
+              | tail -n 1 || true
+          )"
+
+          if [[ -z "$last_tag" ]]; then
+            major=0
+            minor=0
+          else
+            major="${last_tag%%.*}"
+            minor="${last_tag##*.}"
+          fi
+
+          next_tag="${major}.$((minor + 1))"
+
+          echo "Previous tag: ${last_tag:-none}"
+          echo "New tag: $next_tag"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git tag "$next_tag" "$GITHUB_SHA"
+          git push origin "$next_tag"
